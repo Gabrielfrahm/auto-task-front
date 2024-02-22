@@ -14,24 +14,24 @@ import {
 } from "@/components/ui/drawer"
 import Settings from "./components/form/settings";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./components/ui/dialog";
-import {CheckSquare } from "lucide-react";
+import {CheckSquare, LucideSettings, PlusCircle } from "lucide-react";
+import AddTask from "./components/form/add-task";
 
 
 function App() {
 
   const [storage, setStorage] = useState<Record<string, number>>();
-
   const [timerDurations, setTimerDurations] = useState<Record<string, number>>({
     pomodoro: storage ? storage['pomodoro'] *  60 : 25 * 60,
     shortBreak:  storage ? storage['shortBreak'] *  60 : 5 * 60,
     longBreak:  storage ? storage['longBreak'] *  60 : 10 * 60
   });
-
   const [timerType, setTimerType] = useState<string>("pomodoro");
-
   const [isActive, setIsActive] = useState<boolean>(false);
   const [seconds, setSeconds] = useState(timerDurations[timerType]);
   const [isOpenDialog, setIsOpenDialog]= useState<boolean>(false);
+  const [isOpenDialogAddTask, setIsOpenDialogAddTask]= useState<boolean>(false);
+
 
   const handleType = (type: string) => {
     setTimerType(type);
@@ -80,7 +80,9 @@ function App() {
           <p className="text-white font-bold" >Auto Task</p>
         </div>
         <Drawer>
-          <DrawerTrigger className="text-white font-semibold bg-black/[.08] hover:bg-black/[.5] w-32 rounded-md ">Settings</DrawerTrigger>
+          <DrawerTrigger className="text-white font-semibold rounded-md flex gap-2 text-center">
+            <LucideSettings/> Settings
+          </DrawerTrigger>
             <DrawerContent className="bg-sky-950 text-white">
               <DrawerHeader>
                 <DrawerTitle className="text-center">Settings</DrawerTitle>
@@ -94,8 +96,8 @@ function App() {
             </DrawerContent>
           </Drawer>
       </div>
-       <Separator className="my-4 w-150  bg-white/[.07]" />
-      <div className="bg-white/[.07] h-96 w-128 rounded-md flex items-center justify-around flex-col">
+       <Separator className="mb-10 mt-4  w-150  bg-white/[.07]" />
+      <div className="bg-white/[.07] h-80 w-128 rounded-md flex items-center justify-around flex-col p-2">
         <div className="text-white flex justify-around items-center w-full">
           <Button onClick={() => handleType("pomodoro")}
             className={`text-lg bg-black/[.08] hover:bg-black/[.5] ${timerType === 'pomodoro' ? 'bg-black' : ''}`}>
@@ -106,7 +108,7 @@ function App() {
           <Button  onClick={() => handleType("longBreak")}
            className={`text-lg bg-black/[.08] hover:bg-black/[.5] ${timerType === 'longBreak' ? 'bg-black' : ''}`}>Long Break</Button>
         </div>
-        <div className="text-white mb-10">
+        <div className="text-white mb-2">
           <Timer
             isActive={isActive}
             seconds={seconds}
@@ -121,6 +123,13 @@ function App() {
           <Button disabled={!isActive} className={`bg-zinc-50 w-52 h-16 text-2xl text-sky-950  hover:bg-black/[.5] hover:text-white shadow shadow-xl`} onClick={reset}>RESET</Button>
         </div>
       </div>
+      <Separator className="my-8 w-128 bg-white/[.07]" />
+      <Button
+        className="border-dashed border-2 border-sky-50 w-128 h-20 text-white font-semibold  bg-white/[.07]  hover:bg-black/[.1] hover:text-white shadow shadow-xl gap-4"
+        onClick={() => setIsOpenDialogAddTask(true)}
+      >
+       <PlusCircle size={24}/> Add Task
+      </Button>
       <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
         <DialogContent className="bg-sky-950 text-white">
           <DialogHeader className="flex justify-center items-center">
@@ -129,6 +138,16 @@ function App() {
               <Settings setIsDialog={setIsOpenDialog} setSeconds={setSeconds} setTimerDurations={setTimerDurations} timerType={timerType} />
             </DialogDescription>
           </DialogHeader>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isOpenDialogAddTask} onOpenChange={setIsOpenDialogAddTask}>
+        <DialogContent className="flex justify-center items-center flex-col">
+          <DialogHeader className="">
+            <DialogTitle className="">Add Task</DialogTitle>
+          </DialogHeader>
+          <div className="w-128">
+            <AddTask />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
