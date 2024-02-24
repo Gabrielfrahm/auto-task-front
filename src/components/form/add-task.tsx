@@ -5,6 +5,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
+import { api } from "@/lib/axios";
+
 
 const formSchema = z.object({
   name: z.string(),
@@ -14,10 +17,30 @@ const formSchema = z.object({
 function AddTask(){
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      description: ''
+    },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    try {
+      const response = await api.post('/tasks', {
+        name: values.name,
+        description : values.description,
+      });
+      console.log(response)
+    }catch(err) {
+      console.log(err);
+    }
+    toast("Event has been created", {
+      description: "Sunday, December 03, 2023 at 9:00 AM",
+      action: {
+        label: "Undo",
+        onClick: () => console.log("Undo"),
+      },
+    })
   }
 
   return(

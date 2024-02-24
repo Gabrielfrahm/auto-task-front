@@ -16,7 +16,17 @@ import Settings from "./components/form/settings";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./components/ui/dialog";
 import {CheckSquare, LucideSettings, PlusCircle } from "lucide-react";
 import AddTask from "./components/form/add-task";
+import { api } from "./lib/axios";
+import {format} from 'date-fns'
 
+export type Task = {
+  id: string;
+  name: string;
+  description: string;
+  data: string;
+  initial_hour: string;
+  finished_hour: string;
+}
 
 function App() {
 
@@ -31,7 +41,7 @@ function App() {
   const [seconds, setSeconds] = useState(timerDurations[timerType]);
   const [isOpenDialog, setIsOpenDialog]= useState<boolean>(false);
   const [isOpenDialogAddTask, setIsOpenDialogAddTask]= useState<boolean>(false);
-
+  const [tasks, setTasks] = useState<Task[]>([])
 
   const handleType = (type: string) => {
     setTimerType(type);
@@ -71,7 +81,17 @@ function App() {
     }
   },[storage, timerType])
 
-
+  useEffect(() => {
+    (async () => {
+      const tasks = await api.get('/tasks', {
+        params: {
+          start_at: format(new Date(), 'yyyy-MM-dd')
+        }
+      });
+      setTasks(tasks.data.data);
+    })();
+  }, [])
+  console.log(tasks)
   return (
     <div className="bg-sky-950 h-dvh w-auto flex items-center justify-start flex-col p-10">
       <div className="flex items-center justify-between w-150">
@@ -124,12 +144,21 @@ function App() {
         </div>
       </div>
       <Separator className="my-8 w-128 bg-white/[.07]" />
-      <Button
-        className="border-dashed border-2 border-sky-50 w-128 h-20 text-white font-semibold  bg-white/[.07]  hover:bg-black/[.1] hover:text-white shadow shadow-xl gap-4"
-        onClick={() => setIsOpenDialogAddTask(true)}
-      >
-       <PlusCircle size={24}/> Add Task
-      </Button>
+      {tasks[0]?.finished_hour && (
+        <Button
+          className="border-dashed border-2 border-sky-50 w-128 h-20 text-white font-semibold  bg-white/[.07]  hover:bg-black/[.1] hover:text-white shadow shadow-xl gap-4"
+          onClick={() => setIsOpenDialogAddTask(true)}
+        >
+          <PlusCircle size={24}/> Add Task
+        </Button>
+      )}
+      {tasks[0] && (
+        <div className="w-128">
+          {
+            <h1>{tasks[0].name}</h1>
+          }
+        </div>
+      )}
       <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
         <DialogContent className="bg-sky-950 text-white">
           <DialogHeader className="flex justify-center items-center">
