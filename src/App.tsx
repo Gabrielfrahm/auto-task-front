@@ -41,8 +41,7 @@ function App() {
   const [seconds, setSeconds] = useState(timerDurations[timerType]);
   const [isOpenDialog, setIsOpenDialog]= useState<boolean>(false);
   const [isOpenDialogAddTask, setIsOpenDialogAddTask]= useState<boolean>(false);
-  const [tasks, setTasks] = useState<Task[]>([])
-
+  const [actualTask, setActualTask] = useState<Task>({} as Task);
   const handleType = (type: string) => {
     setTimerType(type);
     setSeconds(timerDurations[type]);
@@ -79,7 +78,7 @@ function App() {
       })
       setSeconds(storage[timerType] * 60);
     }
-  },[storage, timerType])
+  },[storage, timerType]);
 
   useEffect(() => {
     (async () => {
@@ -88,10 +87,11 @@ function App() {
           start_at: format(new Date(), 'yyyy-MM-dd')
         }
       });
-      setTasks(tasks.data.data);
+      setActualTask(tasks.data.data[0]);
     })();
-  }, [])
-  console.log(tasks)
+  }, []);
+
+  // console.log(actualTask)
   return (
     <div className="bg-sky-950 h-dvh w-auto flex items-center justify-start flex-col p-10">
       <div className="flex items-center justify-between w-150">
@@ -144,7 +144,7 @@ function App() {
         </div>
       </div>
       <Separator className="my-8 w-128 bg-white/[.07]" />
-      {tasks[0]?.finished_hour && (
+      {!actualTask?.id && (
         <Button
           className="border-dashed border-2 border-sky-50 w-128 h-20 text-white font-semibold  bg-white/[.07]  hover:bg-black/[.1] hover:text-white shadow shadow-xl gap-4"
           onClick={() => setIsOpenDialogAddTask(true)}
@@ -152,11 +152,15 @@ function App() {
           <PlusCircle size={24}/> Add Task
         </Button>
       )}
-      {tasks[0] && (
-        <div className="w-128">
-          {
-            <h1>{tasks[0].name}</h1>
-          }
+      {actualTask?.id && (
+        <div className="flex flex-col justify-center items-center">
+          <p className="font-semibold text-white text-xl mb-3">Actual Task</p>
+          <Button
+            className="border-dashed border-2 border-sky-50 w-128 h-20 text-white font-semibold  bg-white/[.07]  hover:bg-black/[.1] hover:text-white shadow shadow-xl gap-4 text-lg"
+            onClick={() => setIsOpenDialogAddTask(true)}
+          >
+            {actualTask.name}
+          </Button>
         </div>
       )}
       <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
@@ -172,10 +176,10 @@ function App() {
       <Dialog open={isOpenDialogAddTask} onOpenChange={setIsOpenDialogAddTask}>
         <DialogContent className="flex justify-center items-center flex-col">
           <DialogHeader className="">
-            <DialogTitle className="">Add Task</DialogTitle>
+            <DialogTitle className="">{actualTask?.id ? 'Edit': 'Add Task'}</DialogTitle>
           </DialogHeader>
           <div className="w-128">
-            <AddTask />
+            <AddTask setActualTask={setActualTask} task={actualTask} isEdit={!!actualTask?.id} />
           </div>
         </DialogContent>
       </Dialog>
